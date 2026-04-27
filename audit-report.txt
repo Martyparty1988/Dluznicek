@@ -1,0 +1,26 @@
+Dlužníček – audit checklist
+
+Ruční návrhový audit:
+[OK] Zachována původní logika: Celkový zůstatek, Půjčil jsem, Splátka, Nový záznam, Částka, Poznámka, Datum, Uložit.
+[OK] Přidaný finální UI vzhled ve stylu zelená/teal/zlatá podle vygenerované ikonky.
+[OK] Appka je bez externích CDN a bez backendu.
+[OK] Data zůstávají lokálně v zařízení přes localStorage.
+[OK] PWA manifest a service worker jsou součástí balíčku.
+[OK] Přidány ikony pro Android/iOS/favicon.
+[OK] Přidán export CSV, export/import JSON zálohy.
+[OK] Přidána editace, kopie a mazání záznamů.
+[OK] Přidán přehled dlužníků, filtr a řazení historie.
+
+Automatický audit byl spuštěn po sestavení ZIPu a výsledek je popsaný ve finální zprávě chatu.
+
+
+Dlužníček – automatický audit
+
+Required files missing: none
+HTML missing references: none
+External http(s) references in app files: 0
+app.js syntax check: OK
+service-worker.js syntax check: OK
+manifest name: Dlužníček
+manifest display: standalone
+icon sizes: {'assets/icons/icon-192.png': (192, 192), 'assets/icons/icon-512.png': (512, 512), 'assets/icons/apple-touch-icon.png': (180, 180), 'assets/icons/favicon-32.png': (32, 32)}
