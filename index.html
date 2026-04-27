@@ -1,0 +1,500 @@
+```html
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Dlužníček</title>
+    
+    <!-- PWA & iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Dlužníček">
+    <meta name="theme-color" content="#000000">
+    
+    <!-- Dynamicky generovaný manifest a ikona -->
+    <link id="manifest-link" rel="manifest" href="">
+    <link id="apple-touch-icon" rel="apple-touch-icon" href="">
+
+    <!-- Tailwind CSS pro rychlý styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        /* Základní nastavení chování iOS */
+        :root {
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --glass-bg: rgba(30, 30, 35, 0.4);
+            --glass-highlight: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #000;
+            color: #ffffff;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior-y: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Ambientní animované pozadí (iOS Mesh Gradient styl) */
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+            background: #08080a;
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+        .orb-1 {
+            width: 300px; height: 300px;
+            background: #4f46e5; /* Indigo */
+            top: -10%; left: -10%;
+        }
+        .orb-2 {
+            width: 400px; height: 400px;
+            background: #9333ea; /* Purple */
+            bottom: -20%; right: -10%;
+            animation-delay: -5s;
+        }
+        .orb-3 {
+            width: 250px; height: 250px;
+            background: #0284c7; /* Sky */
+            top: 40%; left: 50%;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 50px) scale(1.1); }
+        }
+
+        /* Pokročilý Glassmorphism */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 var(--glass-highlight);
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .glass-card:active {
+            transform: scale(0.98);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Tlačítka */
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: all 0.2s;
+        }
+        .glass-btn:active {
+            transform: scale(0.96);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* iPhone Safe Areas */
+        .safe-pt { padding-top: max(1rem, env(safe-area-inset-top)); }
+        .safe-pb { padding-bottom: max(1.5rem, env(safe-area-inset-bottom)); }
+        
+        /* Skrytí scrollbaru pro čistý design */
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Modální okno animace (iOS Bottom Sheet) */
+        .modal-backdrop {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        .modal.active .modal-backdrop {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        /* Prémiové formulářové prvky */
+        .input-group {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 4px;
+            transition: border-color 0.3s ease;
+        }
+        .input-group:focus-within {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.4);
+        }
+        input {
+            background: transparent;
+            color: white;
+            width: 100%;
+            padding: 12px 16px;
+            outline: none;
+            font-size: 17px;
+        }
+        input::placeholder { color: rgba(255, 255, 255, 0.3); }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            opacity: 0.5;
+        }
+
+        /* Custom text gradient */
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col overflow-hidden text-base">
+
+    <!-- Ambientní pozadí -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- Hlavní obsah -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden">
+        
+        <!-- Plovoucí Header -->
+        <header class="safe-pt px-4 pt-4 pb-2 z-10 shrink-0">
+            <div class="glass-panel rounded-[32px] p-6 relative overflow-hidden">
+                <!-- Vnitřní odlesk nahoře -->
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+                
+                <div class="text-center">
+                    <p class="text-white/50 text-xs font-semibold uppercase tracking-widest mb-2">Celkový zůstatek</p>
+                    <div class="text-[2.75rem] leading-none font-bold tracking-tight text-white mb-8" id="totalBalance">
+                        0 Kč
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button onclick="openModal('loan')" class="glass-btn flex-1 py-3.5 rounded-2xl flex flex-col items-center justify-center gap-1">
+                        <svg class="w-6 h-6 text-rose-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span class="text-xs font-medium text-white/80">Půjčil jsem</span>
+                    </button>
+                    <button onclick="openModal('repayment')" class="glass-btn flex-1 py-3.5 rounded-2xl flex flex-col items-center justify-center gap-1">
+                        <svg class="w-6 h-6 text-emerald-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span class="text-xs font-medium text-white/80">Splátka</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Seznam transakcí -->
+        <div class="flex-1 overflow-y-auto px-4 pt-2 pb-24 space-y-3" id="transactionList">
+            <!-- Transakce generované přes JS -->
+        </div>
+    </main>
+
+    <!-- Modální okno (Bottom Sheet) -->
+    <div id="addModal" class="modal fixed inset-0 z-50 flex flex-col justify-end">
+        <!-- Zatemnění pozadí -->
+        <div class="modal-backdrop absolute inset-0" onclick="closeModal()"></div>
+        
+        <!-- Obsah okna -->
+        <div class="modal-content glass-panel rounded-t-[32px] w-full safe-pb relative z-10 p-6 pt-3 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+            <!-- Madlo pro vizuální efekt tažení -->
+            <div class="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-6"></div>
+            
+            <div class="flex justify-between items-center mb-6">
+                <h2 id="modalTitle" class="text-xl font-semibold text-white">Nový záznam</h2>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <form id="transactionForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                <input type="hidden" id="txType">
+                
+                <div>
+                    <label class="block text-xs font-medium text-white/50 mb-1.5 ml-2 uppercase tracking-wider">Částka (Kč)</label>
+                    <div class="input-group">
+                        <input type="number" id="txAmount" required inputmode="decimal" min="1" step="any" placeholder="0" class="text-2xl font-semibold">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-medium text-white/50 mb-1.5 ml-2 uppercase tracking-wider">Poznámka</label>
+                    <div class="input-group">
+                        <input type="text" id="txNote" required placeholder="Např. oběd, kino..." autocomplete="off">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-medium text-white/50 mb-1.5 ml-2 uppercase tracking-wider">Datum</label>
+                    <div class="input-group">
+                        <input type="date" id="txDate" required>
+                    </div>
+                </div>
+                
+                <div class="pt-6">
+                    <button type="submit" id="submitBtn" class="w-full py-4 rounded-2xl font-semibold text-lg shadow-lg transition-transform active:scale-[0.98]">
+                        Uložit
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PWA & APLIKAČNÍ LOGIKA -->
+    <script>
+        // --- 1. DYNAMICKÉ PWA ASSETY (Ikona & Manifest) ---
+        
+        // Prémiová SVG Ikona (Tmavá skleněná peněženka/karta)
+        const svgIcon = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+                <defs>
+                    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#1e1b4b" />
+                        <stop offset="100%" stop-color="#020617" />
+                    </linearGradient>
+                    <linearGradient id="card1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#818cf8" />
+                        <stop offset="100%" stop-color="#3730a3" />
+                    </linearGradient>
+                    <linearGradient id="card2" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#38bdf8" />
+                        <stop offset="100%" stop-color="#0369a1" />
+                    </linearGradient>
+                </defs>
+                <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+                <path d="M110 230c0-25 20-45 45-45h202c25 0 45 20 45 45v130c0 25-20 45-45 45H155c-25 0-45-20-45-45V230z" fill="url(#card1)" opacity="0.8"/>
+                <path d="M150 140c-25 0-45 20-45 45v150h270V185c0-25-20-45-45-45H150z" fill="url(#card2)"/>
+                <path d="M150 140c-25 0-45 20-45 45v30h270v-30c0-25-20-45-45-45H150z" fill="#ffffff" opacity="0.1"/>
+                <circle cx="340" cy="250" r="28" fill="#ffffff" opacity="0.9"/>
+                <circle cx="280" cy="250" r="28" fill="#ffffff" opacity="0.5"/>
+            </svg>
+        `;
+        const base64Icon = 'data:image/svg+xml;base64,' + btoa(svgIcon.trim());
+
+        document.getElementById('apple-touch-icon').href = base64Icon;
+
+        const manifest = {
+            name: "Dlužníček Pro",
+            short_name: "Dlužníček",
+            description: "Prémiový správce dluhů",
+            start_url: "./",
+            display: "standalone",
+            background_color: "#000000",
+            theme_color: "#000000",
+            icons: [
+                { src: base64Icon, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+            ]
+        };
+        const manifestString = JSON.stringify(manifest);
+        document.getElementById('manifest-link').href = 'data:application/json;charset=utf-8,' + encodeURIComponent(manifestString);
+
+        // Service Worker (Offline podpora)
+        const swCode = `
+            const CACHE_NAME = 'dluznicek-pro-v2';
+            self.addEventListener('install', event => {
+                event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
+                self.skipWaiting();
+            });
+            self.addEventListener('fetch', event => {
+                event.respondWith(
+                    caches.match(event.request).then(response => {
+                        return response || fetch(event.request).catch(() => new Response('Offline mode'));
+                    })
+                );
+            });
+        `;
+        const swBlob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(swBlob);
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register(swUrl).catch(err => console.log('SW chyba:', err));
+            });
+        }
+
+        // --- 2. LOGIKA APLIKACE ---
+
+        let transactions = JSON.parse(localStorage.getItem('dluznicek_pro_data')) || [];
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('cs-CZ', { style: 'currency', currency: 'CZK', maximumFractionDigits: 0 }).format(amount);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+
+            if (date.toDateString() === today.toDateString()) return 'Dnes';
+            if (date.toDateString() === yesterday.toDateString()) return 'Včera';
+            
+            return date.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' });
+        }
+
+        function renderApp() {
+            const listEl = document.getElementById('transactionList');
+            const balanceEl = document.getElementById('totalBalance');
+            
+            listEl.innerHTML = '';
+            let total = 0;
+
+            const sortedTx = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (sortedTx.length === 0) {
+                listEl.innerHTML = `
+                    <div class="h-full flex flex-col items-center justify-center text-white/30 mt-20 px-8 text-center">
+                        <div class="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        </div>
+                        <p class="font-medium text-white/50">Máš čistý štít</p>
+                        <p class="text-sm mt-2">Zatím neeviduješ žádné dluhy ani splátky.</p>
+                    </div>`;
+            }
+
+            sortedTx.forEach(tx => {
+                if (tx.type === 'loan') total += tx.amount;
+                if (tx.type === 'repayment') total -= tx.amount;
+
+                const isLoan = tx.type === 'loan';
+                const sign = isLoan ? '+' : '-';
+                const colorClass = isLoan ? 'text-rose-400' : 'text-emerald-400';
+                const bgIconClass = isLoan ? 'bg-rose-500/10 text-rose-400' : 'bg-emerald-500/10 text-emerald-400';
+                const iconPath = isLoan 
+                    ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>'
+                    : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>';
+
+                const card = document.createElement('div');
+                card.className = 'glass-card p-4 rounded-[20px] flex items-center gap-4';
+                card.innerHTML = `
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${bgIconClass}">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            ${iconPath}
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-semibold text-white truncate text-[17px] mb-0.5">${tx.note}</h3>
+                        <p class="text-[13px] text-white/50 font-medium">${formatDate(tx.date)}</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end">
+                        <p class="font-semibold text-[17px] ${colorClass} tracking-tight">${sign} ${formatCurrency(tx.amount)}</p>
+                        <button onclick="deleteTx('${tx.id}')" class="text-[11px] font-bold text-white/30 hover:text-rose-400 mt-1 uppercase tracking-wider transition-colors px-2 py-1 -mr-2 rounded-lg">Smazat</button>
+                    </div>
+                `;
+                listEl.appendChild(card);
+            });
+
+            balanceEl.textContent = formatCurrency(Math.abs(total));
+            
+            // Barvení textu celkové částky
+            balanceEl.className = "text-[2.75rem] leading-none font-bold tracking-tight mb-8 " + 
+                (total > 0 ? "text-gradient bg-gradient-to-br from-white to-white/60" : 
+                 total < 0 ? "text-gradient bg-gradient-to-br from-emerald-300 to-emerald-600" : "text-white/80");
+
+            if(total < 0) {
+                balanceEl.parentElement.querySelector('p').textContent = "Přeplateno";
+            } else {
+                balanceEl.parentElement.querySelector('p').textContent = "Celkem ti dluží";
+            }
+
+            localStorage.setItem('dluznicek_pro_data', JSON.stringify(transactions));
+        }
+
+        // --- 3. UI INTERAKCE ---
+        
+        function openModal(type) {
+            document.getElementById('txType').value = type;
+            document.getElementById('modalTitle').textContent = type === 'loan' ? 'Půjčil jsem' : 'Přijatá splátka';
+            
+            const submitBtn = document.getElementById('submitBtn');
+            if (type === 'loan') {
+                submitBtn.className = 'w-full py-4 rounded-2xl font-semibold text-lg shadow-lg transition-transform active:scale-[0.98] bg-gradient-to-r from-rose-500 to-red-600 text-white shadow-rose-500/20';
+                submitBtn.textContent = 'Uložit dluh';
+            } else {
+                submitBtn.className = 'w-full py-4 rounded-2xl font-semibold text-lg shadow-lg transition-transform active:scale-[0.98] bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/20';
+                submitBtn.textContent = 'Uložit splátku';
+            }
+
+            document.getElementById('txDate').valueAsDate = new Date();
+            document.getElementById('txAmount').value = '';
+            document.getElementById('txNote').value = '';
+            
+            document.getElementById('addModal').classList.add('active');
+            
+            // Focus na částku s malým zpožděním pro iOS animaci
+            setTimeout(() => document.getElementById('txAmount').focus(), 100);
+        }
+
+        function closeModal() {
+            document.getElementById('addModal').classList.remove('active');
+            document.activeElement.blur(); // Skryje klávesnici
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const type = document.getElementById('txType').value;
+            const amount = parseFloat(document.getElementById('txAmount').value);
+            const note = document.getElementById('txNote').value;
+            const date = document.getElementById('txDate').value;
+
+            if (!amount || !note || !date) return;
+
+            transactions.push({
+                id: Date.now().toString(),
+                type,
+                amount,
+                note,
+                date
+            });
+            
+            renderApp();
+            closeModal();
+        }
+
+        function deleteTx(id) {
+            if (confirm('Opravdu smazat tento záznam?')) {
+                transactions = transactions.filter(tx => tx.id !== id);
+                renderApp();
+            }
+        }
+
+        // Inicializace
+        renderApp();
+    </script>
+</body>
+</html>
+
+
+```
