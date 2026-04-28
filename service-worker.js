@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dluznicek-v1.0.0';
+const CACHE_NAME = 'dluznicek-v2-pro-glass';
 const APP_SHELL = [
   './',
   './index.html',

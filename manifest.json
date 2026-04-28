@@ -1,16 +1,20 @@
 {
   "name": "Dlužníček",
   "short_name": "Dlužníček",
-  "description": "Stylová evidence půjček, splátek a dluhů. Všechna data zůstávají v zařízení.",
+  "description": "Prémiová glassmorphism evidence půjček, splátek a dluhů. Funguje offline a data zůstávají v zařízení.",
   "id": "dluznicek",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#041819",
-  "theme_color": "#082f2f",
+  "background_color": "#060914",
+  "theme_color": "#080c1f",
   "lang": "cs-CZ",
-  "categories": ["finance", "productivity", "utilities"],
+  "categories": [
+    "finance",
+    "productivity",
+    "utilities"
+  ],
   "icons": [
     {
       "src": "assets/icons/icon-192.png",

@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#082f2f">
-  <meta name="description" content="Dlužníček – jednoduchá stylová evidence půjček, splátek a dluhů.">
+  <meta name="theme-color" content="#080c1f">
+  <meta name="description" content="Dlužníček – prémiová evidence půjček, splátek a dluhů s offline režimem.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Dlužníček">
@@ -15,90 +15,72 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="ambient-bg" aria-hidden="true">
+    <span class="orb orb-indigo"></span>
+    <span class="orb orb-purple"></span>
+    <span class="orb orb-sky"></span>
+  </div>
+
   <div class="app-shell">
-    <header class="hero-card" aria-label="Souhrn aplikace Dlužníček">
+    <header class="hero-card glass-card" aria-label="Souhrn aplikace Dlužníček">
       <div class="topbar">
         <div class="brand">
           <img src="assets/icons/icon-192.png" alt="Ikona aplikace Dlužníček" class="brand-icon">
           <div>
-            <p class="eyebrow">peníze pod dohledem</p>
+            <p class="eyebrow">premium debt tracker</p>
             <h1>Dlužníček</h1>
           </div>
         </div>
         <button class="ghost-button small" id="installButton" type="button" hidden>Instalovat</button>
       </div>
 
-      <section class="balance-panel">
+      <section class="balance-panel glass-panel">
         <div>
-          <p class="label">Celkový zůstatek</p>
+          <p class="label uppercase-label">Celkový zůstatek</p>
           <output id="totalBalance" class="balance">0 Kč</output>
           <p id="balanceHint" class="hint">Účetní skřítek zatím spí.</p>
         </div>
         <div class="wallet-badge" aria-hidden="true">Kč</div>
       </section>
 
+      <div class="hero-actions" aria-label="Rychlé přidání záznamu">
+        <button class="action-button action-loan" type="button" data-open-sheet="loan">
+          <span class="action-symbol">−</span>
+          <span>
+            <strong>Půjčka</strong>
+            <small>někomu jsem půjčil</small>
+          </span>
+        </button>
+        <button class="action-button action-payment" type="button" data-open-sheet="payment">
+          <span class="action-symbol">+</span>
+          <span>
+            <strong>Splátka</strong>
+            <small>někdo mi vrátil</small>
+          </span>
+        </button>
+      </div>
+
       <div class="stat-grid" aria-label="Rychlé statistiky">
-        <article class="stat-card">
-          <span class="stat-label">Půjčeno</span>
+        <article class="stat-card glass-mini">
+          <span class="stat-label uppercase-label">Půjčeno</span>
           <strong id="totalLent">0 Kč</strong>
         </article>
-        <article class="stat-card">
-          <span class="stat-label">Splaceno</span>
+        <article class="stat-card glass-mini">
+          <span class="stat-label uppercase-label">Splaceno</span>
           <strong id="totalPaid">0 Kč</strong>
         </article>
-        <article class="stat-card">
-          <span class="stat-label">Aktivní dlužníci</span>
+        <article class="stat-card glass-mini">
+          <span class="stat-label uppercase-label">Aktivní dlužníci</span>
           <strong id="activeDebtors">0</strong>
         </article>
       </div>
     </header>
 
-    <main>
-      <section class="card form-card" aria-labelledby="formTitle">
+    <main class="dashboard-grid">
+      <section class="card glass-card" aria-labelledby="debtorsTitle">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">rychlý zápis</p>
-            <h2 id="formTitle">Nový záznam</h2>
-          </div>
-          <button class="ghost-button small" id="resetFormButton" type="button">Vyčistit</button>
-        </div>
-
-        <form id="recordForm" autocomplete="off">
-          <input type="hidden" id="editId" value="">
-
-          <div class="segmented" role="radiogroup" aria-label="Typ záznamu">
-            <button class="segment active" type="button" data-type="loan" role="radio" aria-checked="true">Půjčil jsem</button>
-            <button class="segment" type="button" data-type="payment" role="radio" aria-checked="false">Splátka</button>
-          </div>
-          <input type="hidden" id="recordType" value="loan">
-
-          <div class="field-grid">
-            <label>
-              <span>Jméno dlužníka</span>
-              <input id="personInput" name="person" type="text" placeholder="třeba Pavel, Honza, kámo z busu" required maxlength="60">
-            </label>
-            <label>
-              <span>Částka</span>
-              <input id="amountInput" name="amount" inputmode="decimal" type="text" placeholder="např. 500 nebo 1 250,50" required>
-            </label>
-            <label>
-              <span>Datum</span>
-              <input id="dateInput" name="date" type="date" required>
-            </label>
-            <label>
-              <span>Poznámka</span>
-              <input id="noteInput" name="note" type="text" placeholder="pizza, benzín, životní chyba…" maxlength="120">
-            </label>
-          </div>
-
-          <button class="primary-button" type="submit" id="submitButton">Uložit záznam</button>
-        </form>
-      </section>
-
-      <section class="card" aria-labelledby="debtorsTitle">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">kdo má máslo na hlavě</p>
+            <p class="eyebrow">kdo má máslo na kartě</p>
             <h2 id="debtorsTitle">Dlužníci</h2>
           </div>
           <span class="pill" id="debtorsPill">0 lidí</span>
@@ -106,7 +88,7 @@
         <div id="debtorsList" class="debtors-list"></div>
       </section>
 
-      <section class="card" aria-labelledby="historyTitle">
+      <section class="card glass-card history-card" aria-labelledby="historyTitle">
         <div class="section-heading history-heading">
           <div>
             <p class="eyebrow">papírová stopa bez papíru</p>
@@ -120,13 +102,13 @@
           </div>
         </div>
 
-        <div class="filters">
+        <div class="filters glass-mini">
           <label>
-            <span>Hledat</span>
+            <span class="uppercase-label">Hledat</span>
             <input id="searchInput" type="search" placeholder="jméno, poznámka, částka">
           </label>
           <label>
-            <span>Filtr</span>
+            <span class="uppercase-label">Filtr</span>
             <select id="typeFilter">
               <option value="all">Vše</option>
               <option value="loan">Půjčky</option>
@@ -134,7 +116,7 @@
             </select>
           </label>
           <label>
-            <span>Řazení</span>
+            <span class="uppercase-label">Řazení</span>
             <select id="sortSelect">
               <option value="newest">Nejnovější</option>
               <option value="oldest">Nejstarší</option>
@@ -148,6 +130,60 @@
         <button class="danger-button" id="clearAllButton" type="button">Smazat všechno</button>
       </section>
     </main>
+  </div>
+
+  <div class="fab-dock" aria-hidden="false">
+    <button class="fab-button" id="fabOpenButton" type="button">
+      <span>＋</span> Nový záznam
+    </button>
+  </div>
+
+  <div id="sheetOverlay" class="sheet-overlay" hidden>
+    <button class="sheet-backdrop" type="button" data-close-sheet aria-label="Zavřít formulář"></button>
+    <aside class="sheet glass-card" id="recordSheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" data-type="loan">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div class="sheet-heading">
+        <div>
+          <p class="eyebrow">rychlý zápis</p>
+          <h2 id="sheetTitle">Nový záznam</h2>
+        </div>
+        <button class="icon-close" id="closeSheetButton" type="button" aria-label="Zavřít">×</button>
+      </div>
+
+      <form id="recordForm" autocomplete="off">
+        <input type="hidden" id="editId" value="">
+
+        <div class="segmented glass-mini" role="radiogroup" aria-label="Typ záznamu">
+          <button class="segment active" type="button" data-type="loan" role="radio" aria-checked="true">Půjčil jsem</button>
+          <button class="segment" type="button" data-type="payment" role="radio" aria-checked="false">Splátka</button>
+        </div>
+        <input type="hidden" id="recordType" value="loan">
+
+        <div class="field-grid">
+          <label>
+            <span class="uppercase-label">Jméno dlužníka</span>
+            <input id="personInput" name="person" type="text" placeholder="Pavel, Honza, kámo z busu" required maxlength="60">
+          </label>
+          <label>
+            <span class="uppercase-label">Částka</span>
+            <input id="amountInput" name="amount" inputmode="decimal" type="text" placeholder="500 nebo 1 250,50" required>
+          </label>
+          <label>
+            <span class="uppercase-label">Datum</span>
+            <input id="dateInput" name="date" type="date" required>
+          </label>
+          <label>
+            <span class="uppercase-label">Poznámka</span>
+            <input id="noteInput" name="note" type="text" placeholder="pizza, benzín, životní chyba…" maxlength="120">
+          </label>
+        </div>
+
+        <div class="sheet-actions">
+          <button class="ghost-button" type="button" id="resetFormButton">Vyčistit</button>
+          <button class="primary-button" type="submit" id="submitButton" data-type="loan">Uložit půjčku</button>
+        </div>
+      </form>
+    </aside>
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
