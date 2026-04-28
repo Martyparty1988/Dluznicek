@@ -1,26 +1,24 @@
-Dlužníček – audit checklist
+Dlužníček – audit report
+Verze: 2.0.0-pro-glass
 
-Ruční návrhový audit:
-[OK] Zachována původní logika: Celkový zůstatek, Půjčil jsem, Splátka, Nový záznam, Částka, Poznámka, Datum, Uložit.
-[OK] Přidaný finální UI vzhled ve stylu zelená/teal/zlatá podle vygenerované ikonky.
-[OK] Appka je bez externích CDN a bez backendu.
-[OK] Data zůstávají lokálně v zařízení přes localStorage.
-[OK] PWA manifest a service worker jsou součástí balíčku.
-[OK] Přidány ikony pro Android/iOS/favicon.
-[OK] Přidán export CSV, export/import JSON zálohy.
-[OK] Přidána editace, kopie a mazání záznamů.
-[OK] Přidán přehled dlužníků, filtr a řazení historie.
+Kontrola funkčnosti:
+[OK] app.js prošel node --check bez syntaktických chyb.
+[OK] service-worker.js prošel node --check bez syntaktických chyb.
+[OK] index.html odkazuje pouze na existující lokální soubory.
+[OK] manifest.json je platný JSON.
+[OK] PWA ikony z manifestu existují.
+[OK] apple-touch-icon a favicon existují.
+[OK] Nejsou použity žádné externí CDN / http / https zdroje.
+[OK] Offline cache obsahuje index.html, style.css, app.js, manifest a hlavní ikony.
 
-Automatický audit byl spuštěn po sestavení ZIPu a výsledek je popsaný ve finální zprávě chatu.
+Kontrola požadavků uživatele:
+[OK] Ambientní animované pozadí: tři CSS orby indigo, purple, sky blue.
+[OK] Skutečný glassmorphism: saturate(180%) + blur(30px) + inset odlesk.
+[OK] Plovoucí iOS bottom sheet: madlo, horní zaoblení, cubic-bezier(0.32, 0.72, 0, 1).
+[OK] Typografie: iOS-like váhy, gradientní částka, uppercase tracking labely.
+[OK] Barvy tlačítek: rose pro půjčku, emerald pro splátku, active scale efekt.
+[OK] Zachovaný původní směr: Dlužníček, zeleno-zlatá ikonka, půjčky/splátky/zůstatek.
 
-
-Dlužníček – automatický audit
-
-Required files missing: none
-HTML missing references: none
-External http(s) references in app files: 0
-app.js syntax check: OK
-service-worker.js syntax check: OK
-manifest name: Dlužníček
-manifest display: standalone
-icon sizes: {'assets/icons/icon-192.png': (192, 192), 'assets/icons/icon-512.png': (512, 512), 'assets/icons/apple-touch-icon.png': (180, 180), 'assets/icons/favicon-32.png': (32, 32)}
+Rizika / poznámky:
+- Data jsou lokální v prohlížeči. Pro přenos mezi zařízeními je potřeba použít JSON zálohu/import.
+- Service worker se po nasazení může v prohlížeči aktualizovat až po refreshi nebo opětovném otevření aplikace.

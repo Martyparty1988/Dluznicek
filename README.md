@@ -1,48 +1,43 @@
-# Dlužníček
+# Dlužníček – Pro Glass Edition
 
 Hotová mobilní PWA aplikace pro evidenci půjček, splátek a dluhů.
+Data se ukládají lokálně v zařízení přes `localStorage`, takže aplikace funguje bez backendu a bez přihlášení.
 
-## Co umí
+## Co appka umí
 
-- zapisovat půjčky a splátky
-- automaticky počítat celkový zůstatek
-- ukazovat přehled dlužníků podle jména
-- filtrovat a řadit historii
-- upravovat, kopírovat a mazat záznamy
-- exportovat CSV pro Excel / Numbers
-- exportovat a importovat JSON zálohu
-- fungovat offline po prvním načtení
-- instalovat jako aplikaci na mobil přes prohlížeč
+- Přidání půjčky a splátky přes plovoucí iOS bottom sheet.
+- Automatický výpočet celkového zůstatku.
+- Přehled dlužníků podle jména.
+- Historie záznamů s filtrem, hledáním a řazením.
+- Editace, kopírování a mazání jednotlivých záznamů.
+- Export do CSV pro Numbers/Excel.
+- JSON záloha a import dat.
+- Offline režim přes service worker.
+- PWA manifest a ikony pro instalaci na mobil.
 
-## Soukromí
+## Design v této verzi
 
-Data se ukládají jen v prohlížeči zařízení přes `localStorage`. Aplikace nic neposílá na server.
+- Ambientní animované pozadí ze tří sférických světel: indigo, purple a sky blue.
+- Skutečný glassmorphism: `saturate(180%)`, `blur(30px)`, průhledné karty a jemný vnitřní odlesk.
+- Plovoucí iOS bottom sheet s madlem, zaoblením a animací `cubic-bezier(0.32, 0.72, 0, 1)`.
+- iOS-like typografie: velká gradientní částka, jemné uppercase labely a těsné letter-spacing.
+- Nové akční barvy: rose pro půjčku, emerald pro splátku.
+- Vtipná, ale stylová ikonka Dlužníček s peněženkou a Kč motivem.
 
-## Nasazení na GitHub Pages
+## Nasazení
 
-1. Nahraj všechny soubory z tohoto ZIPu do repozitáře.
-2. V GitHubu otevři **Settings → Pages**.
-3. Vyber větev `main` a složku `/root`.
-4. Ulož a počkej, až GitHub vytvoří odkaz.
+Stačí nahrát celý obsah složky do GitHub repozitáře nebo na hosting typu Vercel / Netlify / GitHub Pages.
+Důležité soubory musí zůstat ve stejné struktuře:
 
-## Nasazení na Vercel
-
-Stačí importovat repozitář jako statický projekt. Build command není potřeba, output directory nech prázdný nebo `.`.
-
-## Struktura
-
-```txt
+```text
 index.html
 style.css
 app.js
 manifest.json
 service-worker.js
-assets/icons/
-  icon-192.png
-  icon-512.png
-  apple-touch-icon.png
-  favicon-32.png
-  favicon.ico
+assets/icons/...
 ```
 
-Verze: 1.0.0
+## Poznámka
+
+Aplikace nepoužívá žádné externí CDN knihovny. Všechno běží přímo z lokálních souborů.

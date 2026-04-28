@@ -2,7 +2,7 @@
   'use strict';
 
   const STORAGE_KEY = 'dluznicek.records.v1';
-  const APP_VERSION = '1.0.0';
+  const APP_VERSION = '2.0.0-pro-glass';
   const LOAN = 'loan';
   const PAYMENT = 'payment';
 
@@ -32,7 +32,12 @@
     importJsonInput: document.getElementById('importJsonInput'),
     clearAllButton: document.getElementById('clearAllButton'),
     toast: document.getElementById('toast'),
-    installButton: document.getElementById('installButton')
+    installButton: document.getElementById('installButton'),
+    sheetOverlay: document.getElementById('sheetOverlay'),
+    recordSheet: document.getElementById('recordSheet'),
+    closeSheetButton: document.getElementById('closeSheetButton'),
+    fabOpenButton: document.getElementById('fabOpenButton'),
+    sheetTitle: document.getElementById('sheetTitle')
   };
 
   const state = {
@@ -71,6 +76,17 @@
     els.clearAllButton.addEventListener('click', clearAllRecords);
     els.recordsList.addEventListener('click', handleRecordAction);
     els.debtorsList.addEventListener('click', handleDebtorAction);
+    els.fabOpenButton.addEventListener('click', () => openSheet(LOAN));
+    document.querySelectorAll('[data-open-sheet]').forEach((button) => {
+      button.addEventListener('click', () => openSheet(button.dataset.openSheet || LOAN));
+    });
+    els.closeSheetButton.addEventListener('click', () => closeSheet());
+    els.sheetOverlay.addEventListener('click', (event) => {
+      if (event.target.closest('[data-close-sheet]')) closeSheet();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !els.sheetOverlay.hidden) closeSheet();
+    });
 
     window.addEventListener('beforeinstallprompt', (event) => {
       event.preventDefault();
@@ -167,13 +183,20 @@
     }
 
     saveRecords();
-    resetForm(false);
     render();
+    closeSheet();
+    window.setTimeout(() => resetForm(false), 380);
   }
 
   function setType(type) {
     const safeType = type === PAYMENT ? PAYMENT : LOAN;
     els.recordType.value = safeType;
+    els.recordSheet.dataset.type = safeType;
+    els.submitButton.dataset.type = safeType;
+    if (!els.editId.value) {
+      els.submitButton.textContent = safeType === PAYMENT ? 'Uložit splátku' : 'Uložit půjčku';
+      els.sheetTitle.textContent = safeType === PAYMENT ? 'Nová splátka' : 'Nová půjčka';
+    }
     document.querySelectorAll('.segment').forEach((button) => {
       const isActive = button.dataset.type === safeType;
       button.classList.toggle('active', isActive);
@@ -181,12 +204,37 @@
     });
   }
 
+  function openSheet(type = LOAN, focusTarget = 'person') {
+    setType(type);
+    els.sheetOverlay.hidden = false;
+    window.requestAnimationFrame(() => {
+      els.sheetOverlay.classList.add('visible');
+      document.body.classList.add('sheet-open');
+    });
+    window.setTimeout(() => {
+      const target = focusTarget === 'amount' ? els.amountInput : els.personInput;
+      target.focus({ preventScroll: true });
+    }, 220);
+  }
+
+  function closeSheet() {
+    els.sheetOverlay.classList.remove('visible');
+    document.body.classList.remove('sheet-open');
+    window.setTimeout(() => {
+      if (!els.sheetOverlay.classList.contains('visible')) {
+        els.sheetOverlay.hidden = true;
+      }
+    }, 360);
+  }
+
   function resetForm(showMessage = true) {
     els.editId.value = '';
     els.form.reset();
     els.dateInput.value = todayISO();
     setType(LOAN);
-    els.submitButton.textContent = 'Uložit záznam';
+    els.sheetTitle.textContent = 'Nový záznam';
+    els.submitButton.textContent = 'Uložit půjčku';
+    els.submitButton.dataset.type = LOAN;
     if (showMessage) showToast('Formulář je čistý jak účet po víkendu.');
   }
 
@@ -353,9 +401,10 @@
       els.dateInput.value = record.date;
       els.noteInput.value = record.note;
       setType(record.type);
+      els.sheetTitle.textContent = 'Upravit záznam';
       els.submitButton.textContent = 'Uložit úpravu';
-      els.personInput.focus();
-      els.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      els.submitButton.dataset.type = record.type;
+      openSheet(record.type, 'person');
     }
 
     if (button.dataset.action === 'duplicate') {
@@ -392,8 +441,7 @@
       resetForm(false);
       setType(PAYMENT);
       els.personInput.value = person;
-      els.amountInput.focus();
-      els.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      openSheet(PAYMENT, 'amount');
       showToast(`Splátka pro ${person} je připravená.`);
     }
 
@@ -520,8 +568,9 @@
     if (!ok) return;
     state.records = [];
     saveRecords();
-    resetForm(false);
     render();
+    closeSheet();
+    window.setTimeout(() => resetForm(false), 380);
     showToast('Všechno smazáno. Finanční tabula rasa.');
   }
 
